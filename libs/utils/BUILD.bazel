@@ -1,0 +1,51 @@
+
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@npm//@bazel/esbuild:index.bzl", "esbuild")
+load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
+load("//tools:rename.bzl", "rename")
+
+SRCS = ["src/index.js"]
+
+config_setting(
+    name = "esbuild_condition",
+    values = {
+        "define": "ESBUILD=True"
+    }
+)
+
+esbuild(
+    name = "esbuild",
+    entry_point = "src/index.js",
+    srcs = SRCS,
+    tool = select({
+        "@bazel_tools//src/conditions:darwin": "@esbuild_darwin//:bin/esbuild",
+        # "@bazel_tools//src/conditions:windows": "@esbuild_windows//:esbuild.exe",
+        "@bazel_tools//src/conditions:linux_x86_64": "@esbuild_linux//:bin/esbuild",
+    }),
+)
+
+rollup_bundle(
+    name = "rollup",
+    entry_point = "src/index.js",
+    srcs = SRCS,
+)
+
+rename(
+    name = "renamed-esbuild",
+    deps = [ ":esbuild" ],
+)
+
+rename(
+    name = "renamed-rollup",
+    deps = [ ":rollup" ],
+)
+
+js_library(
+    name = "lib",
+    package_name = "@co/utils",
+    srcs = ["package.json"],
+    deps = select({
+        ":esbuild_condition": [ ":renamed-esbuild" ],
+        "//conditions:default": [ ":renamed-rollup" ],
+    }),
+)

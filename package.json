@@ -1,0 +1,19 @@
+{
+    "name": "my_workspace",
+    "version": "0.1.0",
+    "private": true,
+    "devDependencies": {
+        "@bazel/bazelisk": "latest",
+        "@bazel/buildifier": "latest",
+        "@bazel/esbuild": "^3.7.0",
+        "@bazel/ibazel": "latest",
+        "@bazel/rollup": "^3.7.0",
+        "@bazel/typescript": "^3.7.0",
+        "rollup": "^2.53.2",
+        "typescript": "^4.3.5"
+    },
+    "scripts": {
+        "build": "bazel build //...",
+        "test": "bazel test //..."
+    }
+}
